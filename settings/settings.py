@@ -17,4 +17,5 @@ class Config:
                    }
     # 秘钥
     secret_key = os.getenv("secret_key", "abc")
+    page_size = 10
 
