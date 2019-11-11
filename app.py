@@ -116,30 +116,50 @@ def manage_news(user):
         handle_error(Message.common_msg["error"], manage_news, user)
 
 
-def approval_news(user):
-    page = 1
+def approval_news(user, page=1):
+    page = page
     news_service = NewsService()
     results = news_service.get_padding_news(page, Config.page_size)
     pages = news_service.get_padding_pages()
+    index = 1
     for i in results:
-        print(Fore.BLUE + str(i[0]) + ". " + i[1] + " " + i[2] + " " + i[3] + "\n")
+        print(Fore.BLUE + "\n%s. %s %s %s \n" % (index, i[1], i[2], i[3]))
+        index += 1
     print("---------------------\n")
-    print(str(page) + "/" + str(pages) + "\n")
+    print("%s/%s\n" % (page, pages))
     print("---------------------")
     print(Message.approval_news_msg["leave"])
-    input_val = input(Message.common_msg["prompt"])
+    input_val = input(Message.approval_news_msg["prompt"])
 
     if is_number(input_val):
-        pass
+        index = is_number(input_val)
+        if 10 >= index >= 1:
+            news_id = results[index - 1][0]
+            news_service.approval_news(news_id)
+            cls()
+            print(Message.approval_news_msg["approval_success"])
+            approval_news(user, page)
+        else:
+            handle_error(Message.approval_news_msg["news_id_error"], approval_news, user, page)
     elif input_val == "back":
         cls()
         manage_news(user)
     elif input_val == "prev":
-        pass
+        if page == 1:
+            handle_error(Message.approval_news_msg["prev_error"], approval_news, user, 1)
+        else:
+            page -= 1
+            cls()
+            approval_news(user, page)
     elif input_val == "next":
-        pass
+        if page == pages:
+            handle_error(Message.approval_news_msg["next_error"], approval_news, user, page)
+        else:
+            page += 1
+            cls()
+            approval_news(user, page)
     else:
-        handle_error(Message.common_msg["error"], approval_news, user)
+        handle_error(Message.common_msg["error"], approval_news, user, page)
 
 
 def edit_news(user):

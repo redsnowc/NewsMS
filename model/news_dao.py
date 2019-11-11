@@ -1,5 +1,5 @@
 from settings.settings import Config
-from libs.helper import execute_select_sql
+from libs.helper import execute_select_sql, execute_other_sql
 
 
 class NewsDao:
@@ -20,6 +20,11 @@ class NewsDao:
             FROM t_news
             WHERE state = %s
         """
+        self.approval_news_sql = """
+            UPDATE t_news
+            SET state = "已审批"
+            WHERE id = %s
+        """
 
     def get_pending_news(self, page, page_size):
         results = execute_select_sql(self.get_news_sql, "待审批", (page - 1) * page_size, page_size)
@@ -29,10 +34,14 @@ class NewsDao:
         pages = execute_select_sql(self.count_pages_sql, Config.page_size, "待审批")
         return pages
 
+    def approval_news(self, news_id):
+        execute_other_sql(self.approval_news_sql, news_id)
+
 
 if __name__ == "__main__":
     a = NewsDao()
-    a.get_pending_news(1, 10)
-    a.count_pending_pages()
+    # a.get_pending_news(1, 10)
+    # a.count_pending_pages()
+    a.approval_news(81)
 
 

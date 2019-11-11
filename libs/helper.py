@@ -28,7 +28,25 @@ def execute_select_sql(sql, *args):
 
 
 def execute_other_sql(sql, *args):
-    pass
+    """
+    执行非查询语句，增删该都需要手动操作事务机制
+    :param sql: sql 语句
+    :param args: 传递给 sql 语句的参数
+    :return: none
+    """
+    try:
+        connection = pool.get_connection()
+        connection.start_transaction()
+        cursor = connection.cursor()
+        cursor.execute(sql, [i for i in args])
+        connection.commit()
+    except Exception as e:
+        if "connection" in dir():
+            connection.rollback()
+        print(e)
+    finally:
+        if "connection" in dir():
+            connection.close()
 
 
 def clear_screen():

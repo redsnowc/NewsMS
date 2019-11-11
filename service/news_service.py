@@ -13,6 +13,9 @@ class NewsService:
         pages = self.news_dao.count_pending_pages()
         return int(pages[0][0])
 
+    def approval_news(self, news_id):
+        self.news_dao.approval_news(news_id)
+
 
 if __name__ == "__main__":
     u = NewsService()
