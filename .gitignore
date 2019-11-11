@@ -109,3 +109,4 @@ venv.bak/
 whooshee
 migrations
 .DS_Store
+.vscode
