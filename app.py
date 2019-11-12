@@ -8,7 +8,8 @@ from service.user_service import UserService
 from service.news_service import NewsService
 from message.message import Message
 from settings.settings import Config
-from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, is_number
+from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, \
+    is_number, next_page, prev_page
 
 
 def start():
@@ -108,7 +109,8 @@ def manage_news(user):
         cls()
         approval_news(user)
     elif input_val == "2":
-        pass
+        cls()
+        delete_nes(user)
     elif input_val == "back":
         cls()
         manage_admin(user)
@@ -145,21 +147,15 @@ def approval_news(user, page=1):
         cls()
         manage_news(user)
     elif input_val == "prev":
-        if page == 1:
-            handle_error(Message.approval_news_msg["prev_error"], approval_news, user, 1)
-        else:
-            page -= 1
-            cls()
-            approval_news(user, page)
+        page = prev_page(page, approval_news, user)
     elif input_val == "next":
-        if page == pages:
-            handle_error(Message.approval_news_msg["next_error"], approval_news, user, page)
-        else:
-            page += 1
-            cls()
-            approval_news(user, page)
+        page = next_page(page, pages, approval_news, user)
     else:
         handle_error(Message.common_msg["error"], approval_news, user, page)
+
+
+def delete_nes(user):
+    pass
 
 
 def edit_news(user):

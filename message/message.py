@@ -10,6 +10,8 @@ class Message:
         "error": Fore.RED + "\n!WARING: 输入有误，请重新重新输入",
         "logout": Fore.GREEN + "已登出！",
         "prompt": Style.RESET_ALL + "请输入指令: ",
+        "prev_error": Fore.RED + "!WARING: 已经是第一页！",
+        "next_error": Fore.RED + "!WARING: 已经是最后一页",
              }
 
     start_msg = {
@@ -76,8 +78,6 @@ prev. 上一页
 
 next. 下一页
         """,
-        "prev_error": Fore.RED + "!WARING: 已经是第一页！",
-        "next_error": Fore.RED + "!WARING: 已经是最后一页",
         "approval_success": Fore.GREEN + "审核成功！",
         "news_id_error": Fore.RED + "!WARING: 新闻编号输入有误！",
         "prompt": Style.RESET_ALL + "请输入新闻编号: ",

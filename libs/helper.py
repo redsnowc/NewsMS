@@ -159,3 +159,26 @@ def is_number(val):
         return int(val)
     except ValueError:
         return False
+
+
+def next_page(page, pages, callback, *args):
+    if page == pages:
+        handle_error(Message.common_msg["next_error"], callback, *args, page)
+        return page
+    else:
+        page += 1
+        clear_screen()
+        callback(*args, page)
+        return page
+
+
+def prev_page(page, callback, *args):
+    if page == 1:
+        handle_error(Message.common_msg["prev_error"], callback, *args, page)
+        return page
+    else:
+        page -= 1
+        clear_screen()
+        callback(*args, page)
+        return page
+
