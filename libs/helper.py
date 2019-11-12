@@ -301,18 +301,21 @@ def get_password(pwd_msg):
         return new_pwd
 
 
-def get_email():
+def get_email(prompt):
     """
     依据正则判断邮箱是否正确，且邮箱不能为空
     :return: 正确输入的邮箱
     """
     regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-    new_email = input(Message.edit_user["new_email"])
-    check_null(new_email, Message.common_msg["email_error"], callback=get_email, need_cls=False)
-    if not re.match(regex, new_email):
-        handle_error(Message.common_msg["email_invalid"], callback=get_email, need_cls=False)
-    else:
-        return new_email
+    email = input(prompt)
+    if not email:
+        email = input_cycle(email, Message.common_msg["email_error"], prompt)
+    while not re.match(regex, email):
+        print(Message.common_msg["email_invalid"])
+        email = input_cycle(email, Message.common_msg["email_error"], prompt)
+        if re.match(regex, email):
+            break
+    return email
 
 
 def get_role_id(role_info):

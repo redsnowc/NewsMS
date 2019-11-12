@@ -108,3 +108,7 @@ back. 返回上一层
         "old_email": Style.RESET_ALL + "\n原邮箱: %s",
         "new_email": Style.RESET_ALL + "\n新邮箱: ",
     }
+
+    add_user = {
+        "email": Style.RESET_ALL + "\n请输入邮箱: ",
+    }
