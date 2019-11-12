@@ -12,6 +12,15 @@ class Message:
         "prompt": Style.RESET_ALL + "请输入指令: ",
         "prev_error": Fore.RED + "!WARING: 已经是第一页！",
         "next_error": Fore.RED + "!WARING: 已经是最后一页",
+        "leave": Fore.RED + """
+    back. 返回上一层
+
+    prev. 上一页
+
+    next. 下一页
+            """,
+        "success": Fore.GREEN + "操作成功！",
+        "id_error": Fore.RED + "!WARING: 编号输入有误！",
              }
 
     start_msg = {
@@ -61,7 +70,7 @@ exit. 退出系统
         "option": Fore.GREEN + """
 1. 审批新闻
 
-2. 删除信息
+2. 删除新闻
         """,
         "leave": Fore.RED + """
 ---------------------
@@ -71,14 +80,5 @@ back. 返回上一层
     }
 
     approval_news_msg = {
-        "leave": Fore.RED + """
-back. 返回上一层
-
-prev. 上一页
-
-next. 下一页
-        """,
-        "approval_success": Fore.GREEN + "审核成功！",
-        "news_id_error": Fore.RED + "!WARING: 新闻编号输入有误！",
         "prompt": Style.RESET_ALL + "请输入新闻编号: ",
     }

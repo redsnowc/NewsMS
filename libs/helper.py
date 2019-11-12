@@ -3,6 +3,7 @@ import sys
 import time
 
 from getpass import getpass
+from colorama import Fore
 
 from model.connection_pool import pool
 from message.message import Message
@@ -162,6 +163,14 @@ def is_number(val):
 
 
 def next_page(page, pages, callback, *args):
+    """
+    下一页操作
+    :param page: 当前页
+    :param pages: 总页数
+    :param callback: 回调函数
+    :param args: 回调函数可选参数
+    :return: 翻页后的页码
+    """
     if page == pages:
         handle_error(Message.common_msg["next_error"], callback, *args, page)
         return page
@@ -173,6 +182,13 @@ def next_page(page, pages, callback, *args):
 
 
 def prev_page(page, callback, *args):
+    """
+        上一页操作
+        :param page: 当前页
+        :param callback: 回调函数
+        :param args: 回调函数可选参数
+        :return: 翻页后的页码
+        """
     if page == 1:
         handle_error(Message.common_msg["prev_error"], callback, *args, page)
         return page
@@ -182,3 +198,79 @@ def prev_page(page, callback, *args):
         callback(*args, page)
         return page
 
+
+def list_results(page, results, pages):
+    """
+    列出查询结果集
+    该函数通过循环生成模板字符串和格式化数据的方式渲染显示的数据
+    :param page: 当前页码
+    :param results: 查询结果集
+    :param pages: 总页数
+    :return: none
+    """
+    index = 1
+    for i in results:
+        length = len(i)
+        str_tmp = "\n%s. "
+        data = [index]
+        for j in range(1, length-1):
+            str_tmp += "%s "
+            data.append(i[j])
+        str_tmp += "\n"
+        print(Fore.BLUE + str_tmp % tuple(data))
+        index += 1
+    print("---------------------\n")
+    print("%s/%s\n" % (page, pages))
+    print("---------------------")
+    print(Message.common_msg["leave"])
+
+
+def handle_input(input_val, results, service, callback, user, page):
+    """
+    处理输入分页编号的后续数据库操作
+    :param input_val: 输入的编号
+    :param results: 查询结果集
+    :param service: service 处理函数
+    :param callback: 回调函数
+    :param user: 用户数据
+    :param page: 当前页
+    :return: none
+    """
+    index = is_number(input_val)
+    if len(results) >= index >= 1:
+        news_id = results[index - 1][0]
+        service(news_id)
+        clear_screen()
+        print(Message.common_msg["success"])
+        callback(user, page)
+    else:
+        handle_error(Message.common_msg["id_error"], callback, user, page)
+
+
+def display_judge(page, results, pages, service, callback, up_callback, user):
+    """
+    显示结果集并依据输入执行对应的数据库操作
+    考虑到对于分页展示并需要通过编号操作的函数重复代码较多，所以将重复的部分再次抽离封装
+    :param page: 当前页码
+    :param results: 查询结果集
+    :param pages: 总页数
+    :param service: service 处理函数
+    :param callback: 回调函数 (调用当前页面)
+    :param up_callback: 上层回调函数 (回到上层页面)
+    :param user: 用户数据
+    :return: none
+    """
+    list_results(page, results, pages)
+    input_val = input(Message.approval_news_msg["prompt"])
+
+    if is_number(input_val):
+        handle_input(input_val, results, service, callback, user, page)
+    elif input_val == "back":
+        clear_screen()
+        up_callback(user)
+    elif input_val == "prev":
+        page = prev_page(page, callback, user)
+    elif input_val == "next":
+        page = next_page(page, pages, callback, user)
+    else:
+        handle_error(Message.common_msg["error"], callback, user, page)

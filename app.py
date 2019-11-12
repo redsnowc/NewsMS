@@ -9,7 +9,10 @@ from service.news_service import NewsService
 from message.message import Message
 from settings.settings import Config
 from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, \
-    is_number, next_page, prev_page
+    is_number, next_page, prev_page, list_results, handle_input, display_judge
+
+news_service = NewsService()
+user_service = UserService()
 
 
 def start():
@@ -41,7 +44,6 @@ def login():
         password = input_cycle(
             password, Message.login_msg["pwd_error"], Message.login_msg["password"], kind="password"
         )
-    user_service = UserService()
     user = user_service.login(username, password)
 
     if not user:
@@ -110,7 +112,7 @@ def manage_news(user):
         approval_news(user)
     elif input_val == "2":
         cls()
-        delete_nes(user)
+        delete_news(user)
     elif input_val == "back":
         cls()
         manage_admin(user)
@@ -120,42 +122,16 @@ def manage_news(user):
 
 def approval_news(user, page=1):
     page = page
-    news_service = NewsService()
-    results = news_service.get_padding_news(page, Config.page_size)
-    pages = news_service.get_padding_pages()
-    index = 1
-    for i in results:
-        print(Fore.BLUE + "\n%s. %s %s %s \n" % (index, i[1], i[2], i[3]))
-        index += 1
-    print("---------------------\n")
-    print("%s/%s\n" % (page, pages))
-    print("---------------------")
-    print(Message.approval_news_msg["leave"])
-    input_val = input(Message.approval_news_msg["prompt"])
-
-    if is_number(input_val):
-        index = is_number(input_val)
-        if 10 >= index >= 1:
-            news_id = results[index - 1][0]
-            news_service.approval_news(news_id)
-            cls()
-            print(Message.approval_news_msg["approval_success"])
-            approval_news(user, page)
-        else:
-            handle_error(Message.approval_news_msg["news_id_error"], approval_news, user, page)
-    elif input_val == "back":
-        cls()
-        manage_news(user)
-    elif input_val == "prev":
-        page = prev_page(page, approval_news, user)
-    elif input_val == "next":
-        page = next_page(page, pages, approval_news, user)
-    else:
-        handle_error(Message.common_msg["error"], approval_news, user, page)
+    results = news_service.get_padding_news(page)
+    pages = news_service.count_padding_pages()
+    display_judge(page, results, pages, news_service.approval_news, approval_news, manage_news, user)
 
 
-def delete_nes(user):
-    pass
+def delete_news(user, page=1):
+    page = page
+    results = news_service.get_all_news(page)
+    pages = news_service.count_all_pages()
+    display_judge(page, results, pages, news_service.delete_news, delete_news, manage_news, user)
 
 
 def edit_news(user):

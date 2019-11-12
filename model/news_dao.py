@@ -25,9 +25,13 @@ class NewsDao:
             SET state = "已审批"
             WHERE id = %s
         """
+        self.delete_news_sql = """
+            DELETE FROM t_news
+            WHERE id = %s
+        """
 
-    def get_pending_news(self, page, page_size):
-        results = execute_select_sql(self.get_news_sql, "待审批", (page - 1) * page_size, page_size)
+    def get_pending_news(self, page):
+        results = execute_select_sql(self.get_news_sql, "待审批", (page - 1) * Config.page_size, Config.page_size)
         return results
 
     def count_pending_pages(self):
@@ -37,11 +41,29 @@ class NewsDao:
     def approval_news(self, news_id):
         execute_other_sql(self.approval_news_sql, news_id)
 
+    def get_all_news(self, page):
+        results = execute_select_sql(
+            self.get_news_sql.replace("WHERE n.state = %s", ""), (page - 1) * Config.page_size, Config.page_size
+        )
+        return results
+
+    def count_all_pages(self):
+        pages = execute_select_sql(
+            self.count_pages_sql.replace("WHERE state = %s", ""), Config.page_size
+        )
+        return pages
+
+    def delete_news(self, news_id):
+        execute_other_sql(self.delete_news_sql, news_id)
+
 
 if __name__ == "__main__":
     a = NewsDao()
     # a.get_pending_news(1, 10)
     # a.count_pending_pages()
-    a.approval_news(81)
-
+    # a.approval_news(81)
+    b = a.get_all_news(1, 20)
+    c = a.count_all_pages()
+    print(b)
+    print(c)
 
