@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import re
 
 from getpass import getpass
 from colorama import Fore
@@ -82,7 +83,7 @@ def handle_error(error_msg, callback, *args, need_cls=True):
         return False
 
 
-def check_null(value, error_msg, callback=None, need_cls=True):
+def check_null(value, error_msg, *args, callback=None, need_cls=True):
     """
     判断空值
     :param value: 需要检查的值
@@ -94,7 +95,7 @@ def check_null(value, error_msg, callback=None, need_cls=True):
     if not value:
         if need_cls:
             clear_screen()
-        handle_error(error_msg, callback, need_cls=need_cls)
+        handle_error(error_msg, callback, *args, need_cls=need_cls)
 
 
 def input_cycle(value, error_msg, prompt_msg, kind="common", need_cls=False):
@@ -138,11 +139,11 @@ def log_out():
 
 def time_sleep(second):
     """
-    暂时操作
+    暂停操作
     :param second: 暂停时间(秒)
     :return: none
     """
-    print("%s秒后自动跳转..." % second)
+    print("\n%s秒后自动跳转..." % second)
     count = 0
     while count < second:
         time.sleep(1)
@@ -213,7 +214,7 @@ def list_results(page, results, pages):
         length = len(i)
         str_tmp = "\n%s. "
         data = [index]
-        for j in range(1, length-1):
+        for j in range(1, length):
             str_tmp += "%s "
             data.append(i[j])
         str_tmp += "\n"
@@ -238,8 +239,8 @@ def handle_input(input_val, results, service, callback, user, page):
     """
     index = is_number(input_val)
     if len(results) >= index >= 1:
-        news_id = results[index - 1][0]
-        service(news_id)
+        data_id = results[index - 1][0]
+        service(data_id)
         clear_screen()
         print(Message.common_msg["success"])
         callback(user, page)
@@ -261,7 +262,7 @@ def display_judge(page, results, pages, service, callback, up_callback, user):
     :return: none
     """
     list_results(page, results, pages)
-    input_val = input(Message.approval_news_msg["prompt"])
+    input_val = input(Message.manage_news_msg["prompt"])
 
     if is_number(input_val):
         handle_input(input_val, results, service, callback, user, page)
@@ -274,3 +275,73 @@ def display_judge(page, results, pages, service, callback, up_callback, user):
         page = next_page(page, pages, callback, user)
     else:
         handle_error(Message.common_msg["error"], callback, user, page)
+
+
+def get_password(pwd_msg):
+    """
+    获取密码，需判断密码不能为空，且两次输入一致
+    :param pwd_msg: 密码输入框提示信息
+    :return: 正确输入的密码
+    """
+    new_pwd = getpass(pwd_msg)
+    if not new_pwd:
+        new_pwd = input_cycle(
+            new_pwd, Message.common_msg["pwd_error"], pwd_msg, kind="password"
+        )
+
+    repeat_pwd = getpass(Message.common_msg["pwd_repeat"])
+    if not repeat_pwd:
+        repeat_pwd = input_cycle(
+            repeat_pwd, Message.common_msg["pwd_error"], Message.common_msg["pwd_repeat"], kind="password"
+        )
+
+    if repeat_pwd != new_pwd:
+        handle_error(Message.common_msg["equal_error"], get_password, pwd_msg, need_cls=False)
+    else:
+        return new_pwd
+
+
+def get_email():
+    """
+    依据正则判断邮箱是否正确，且邮箱不能为空
+    :return: 正确输入的邮箱
+    """
+    regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    new_email = input(Message.edit_user["new_email"])
+    check_null(new_email, Message.common_msg["email_error"], callback=get_email, need_cls=False)
+    if not re.match(regex, new_email):
+        handle_error(Message.common_msg["email_invalid"], callback=get_email, need_cls=False)
+    else:
+        return new_email
+
+
+def get_role_id(role_info):
+    """
+    获取角色 id，判断用户输入的角色 id 是否在正确的范围
+    :param role_info: 数据库中的角色信息
+    :return: 正确的角色 id
+    """
+    input_val = input(Message.common_msg["role_id"])
+    role_id = is_number(input_val)
+    role_id_range = [i[0] for i in role_info]
+    if role_id:
+        if role_id in role_id_range:
+            return role_id
+    handle_error(Message.common_msg["role_error"], get_role_id, role_info, need_cls=False)
+
+
+def handle_save(service, *args):
+    """
+    处理用户操作后是否保存操作
+    :param service: 保存之后的 service 操作
+    :param args: 不定参数，传递给 sql 语句做格式化字符串
+    :return:
+    """
+    input_vale = input(Message.common_msg["save"])
+    if input_vale.lower() == "y":
+        print(Message.common_msg["saved"])
+        service(*args)
+    elif input_vale.lower() == "n":
+        print(Message.common_msg["cancel"])
+    else:
+        handle_error(Message.common_msg["error"], handle_save, *args, need_cls=False)

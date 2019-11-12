@@ -13,14 +13,27 @@ class Message:
         "prev_error": Fore.RED + "!WARING: 已经是第一页！",
         "next_error": Fore.RED + "!WARING: 已经是最后一页",
         "leave": Fore.RED + """
-    back. 返回上一层
+back. 返回上一层
 
-    prev. 上一页
+prev. 上一页
 
-    next. 下一页
+next. 下一页
             """,
         "success": Fore.GREEN + "操作成功！",
-        "id_error": Fore.RED + "!WARING: 编号输入有误！",
+        "id_error": Fore.RED + "\n!WARING: 编号输入有误！",
+        "username_error": Fore.RED + "\n!WARING: 用户名不能为空！",
+        "pwd_error": Fore.RED + "\n!WARING: 密码不能为空！",
+        "email_error": Fore.RED + "\n!WARING: 邮箱不能为空！",
+        "email_invalid": Fore.RED + "\n!WARING: 不是有效邮箱！",
+        "pwd_repeat": Style.RESET_ALL + "\n请再次输入密码: ",
+        "equal_error": Fore.RED + "\n!WARING: 两次密码输入不一致！",
+        "role_id": Style.RESET_ALL + "\n输入角色编号: ",
+        "role_error": Fore.RED + "\n!WARING: 用户编号输入有误！",
+        "save": Style.RESET_ALL + "\n是否保存？(Y/N): ",
+        "saved": Style.RESET_ALL + "\n保存成功",
+        "cancel": Style.RESET_ALL + "\n取消成功",
+        "username": Style.RESET_ALL + "\n请输入用户名: ",
+        "password": Style.RESET_ALL + "\n请输入密码: ",
              }
 
     start_msg = {
@@ -34,15 +47,12 @@ class Message:
 """ + Fore.GREEN +
                    """
 1. 登录系统
+
 2. 退出系统
     """,
     }
 
     login_msg = {
-        "username": Style.RESET_ALL + "请输入用户名: ",
-        "username_error": Fore.RED + "!WARING: 用户名不能为空\n",
-        "password": Style.RESET_ALL + "请输入密码: ",
-        "pwd_error":  Fore.RED + "!WARING: 密码不能为空\n",
         "login_error": Fore.RED + "!WARING: 登陆失败",
     }
 
@@ -63,7 +73,12 @@ back. 退出登录
 exit. 退出系统
 
 ---------------------
-        """
+        """,
+        "child_leave": Fore.RED + """
+---------------------
+
+back. 返回上一层
+        """,
     }
 
     manage_news_msg = {
@@ -72,13 +87,24 @@ exit. 退出系统
 
 2. 删除新闻
         """,
-        "leave": Fore.RED + """
----------------------
-
-back. 返回上一层
-        """
+        "prompt": Style.RESET_ALL + "请输入新闻编号: "
     }
 
-    approval_news_msg = {
-        "prompt": Style.RESET_ALL + "请输入新闻编号: ",
+    manage_users = {
+        "option": Fore.GREEN + """
+1. 添加用户
+
+2. 修改用户
+
+3. 删除用户
+        """,
+        "prompt": Style.RESET_ALL + "请输入用户编号: "
+    }
+
+    edit_user = {
+        "old_username": Style.RESET_ALL + "\n原用户名: %s",
+        "new_username": Style.RESET_ALL + "\n新用户名: ",
+        "new_pwd": Style.RESET_ALL + "\n请输入新密码: ",
+        "old_email": Style.RESET_ALL + "\n原邮箱: %s",
+        "new_email": Style.RESET_ALL + "\n新邮箱: ",
     }
