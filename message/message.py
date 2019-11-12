@@ -34,6 +34,7 @@ next. 下一页
         "cancel": Style.RESET_ALL + "\n取消成功",
         "username": Style.RESET_ALL + "\n请输入用户名: ",
         "password": Style.RESET_ALL + "\n请输入密码: ",
+        "username_duplicate": Fore.RED + "\n!WARING: 用户名已存在！",
              }
 
     start_msg = {

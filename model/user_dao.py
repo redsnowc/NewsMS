@@ -51,6 +51,11 @@ class UserDao:
             INSERT INTO t_user(username, password, email, role_id)
             VALUES (%s, HEX(AES_ENCRYPT(%s, %s)), %s, %s)
         """
+        self.check_username_sql = """
+            SELECT COUNT(*)
+            FROM t_user
+            WHERE username = %s
+        """
 
     # 判断是否用户是否存在，处理登陆
     def check_user(self, username, password):
@@ -89,6 +94,10 @@ class UserDao:
     def delete_user(self, user_id):
         execute_other_sql(self.delete_user_sql, user_id)
 
+    def check_username(self, username):
+        result = execute_select_sql(self.check_username_sql, username)
+        return result
+
 
 if __name__ == "__main__":
     user = UserDao()
@@ -97,8 +106,10 @@ if __name__ == "__main__":
     c = user.count_all_pages()
     d = user.get_all_roles()
     e = user.get_user(1)
+    f = user.check_username("admi")
     print(a)
     print(b)
     print(c)
     print(d)
     print(e)
+    print(f)

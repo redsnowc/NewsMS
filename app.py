@@ -190,6 +190,8 @@ def add_user(user):
     role_info = user_service.get_all_roles()
     username = input(Message.common_msg["username"])
     check_null(username, Message.common_msg["username_error"], user, callback=add_user)
+    if user_service.check_username(username):
+        handle_error(Message.common_msg["username_duplicate"], add_user, user)
     pwd = get_password(Message.common_msg["password"])
     email = get_email(Message.add_user["email"])
     print(email)
@@ -251,6 +253,9 @@ def edit_user_input(user, users, index, page):
     print(Message.edit_user["old_username"] % user_info[0][0])
     new_username = input(Message.edit_user["new_username"])
     check_null(new_username, Message.common_msg["username_error"], user, users, index, page, callback=edit_user_input)
+    if new_username != user_info[0][0]:
+        if user_service.check_username(new_username):
+            handle_error(Message.common_msg["username_duplicate"], edit_user_input, user, users, index, page)
 
     new_pwd = get_password(Message.edit_user["new_pwd"])
 

@@ -348,3 +348,13 @@ def handle_save(service, *args):
         print(Message.common_msg["cancel"])
     else:
         handle_error(Message.common_msg["error"], handle_save, *args, need_cls=False)
+
+
+def check_duplicate(value, service):
+    """
+
+    :param value:
+    :param service:
+    :return:
+    """
+    return service(value)

@@ -34,6 +34,12 @@ class UserService:
     def delete_user(self, user_id):
         self.user_dao.delete_user(user_id)
 
+    def check_username(self, username):
+        result = self.user_dao.check_username(username)
+        if result[0][0]:
+            return True
+        return False
+
 
 if __name__ == "__main__":
     u = UserService()

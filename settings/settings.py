@@ -17,5 +17,6 @@ class Config:
                    }
     # 秘钥
     secret_key = os.getenv("secret_key", "abc")
+    # 每页显示数量
     page_size = 10
 
