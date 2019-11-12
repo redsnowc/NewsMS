@@ -283,22 +283,24 @@ def get_password(pwd_msg):
     :param pwd_msg: 密码输入框提示信息
     :return: 正确输入的密码
     """
-    new_pwd = getpass(pwd_msg)
-    if not new_pwd:
-        new_pwd = input_cycle(
-            new_pwd, Message.common_msg["pwd_error"], pwd_msg, kind="password"
-        )
+    while True:
+        new_pwd = getpass(pwd_msg)
+        if not new_pwd:
+            new_pwd = input_cycle(
+                new_pwd, Message.common_msg["pwd_error"], pwd_msg, kind="password"
+            )
 
-    repeat_pwd = getpass(Message.common_msg["pwd_repeat"])
-    if not repeat_pwd:
-        repeat_pwd = input_cycle(
-            repeat_pwd, Message.common_msg["pwd_error"], Message.common_msg["pwd_repeat"], kind="password"
-        )
+        repeat_pwd = getpass(Message.common_msg["pwd_repeat"])
+        if not repeat_pwd:
+            repeat_pwd = input_cycle(
+                repeat_pwd, Message.common_msg["pwd_error"], Message.common_msg["pwd_repeat"], kind="password"
+            )
 
-    if repeat_pwd != new_pwd:
-        handle_error(Message.common_msg["equal_error"], get_password, pwd_msg, need_cls=False)
-    else:
-        return new_pwd
+        if repeat_pwd != new_pwd:
+            print(Message.common_msg["equal_error"])
+        else:
+            break
+    return new_pwd
 
 
 def get_email(prompt):
@@ -324,13 +326,16 @@ def get_role_id(role_info):
     :param role_info: 数据库中的角色信息
     :return: 正确的角色 id
     """
-    input_val = input(Message.common_msg["role_id"])
-    role_id = is_number(input_val)
+    role_id = input(Message.common_msg["role_id"])
     role_id_range = [i[0] for i in role_info]
-    if role_id:
-        if role_id in role_id_range:
-            return role_id
-    handle_error(Message.common_msg["role_error"], get_role_id, role_info, need_cls=False)
+    if not role_id:
+        role_id = input_cycle(role_id, Message.common_msg["role_error"], Message.common_msg["role_id"])
+    while is_number(role_id) not in role_id_range:
+        print(Message.common_msg["role_error"])
+        role_id = input_cycle(role_id, Message.common_msg["role_error"], Message.common_msg["role_id"])
+        if is_number(role_id) in role_id_range:
+            break
+    return is_number(role_id)
 
 
 def handle_save(service, *args):
@@ -340,11 +345,14 @@ def handle_save(service, *args):
     :param args: 不定参数，传递给 sql 语句做格式化字符串
     :return:
     """
-    input_vale = input(Message.common_msg["save"])
-    if input_vale.lower() == "y":
-        print(Message.common_msg["saved"])
-        service(*args)
-    elif input_vale.lower() == "n":
-        print(Message.common_msg["cancel"])
-    else:
-        handle_error(Message.common_msg["error"], handle_save, *args, need_cls=False)
+    while True:
+        input_vale = input(Message.common_msg["save"])
+        if input_vale.lower() == "y":
+            print(Message.common_msg["saved"])
+            service(*args)
+            break
+        elif input_vale.lower() == "n":
+            print(Message.common_msg["cancel"])
+            break
+        else:
+            print(Message.common_msg["error"])
