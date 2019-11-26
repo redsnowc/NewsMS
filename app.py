@@ -7,7 +7,7 @@ from service.type_service import TypeService
 from message.message import Message
 from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, \
     is_number, next_page, prev_page, list_results, display_judge, get_password, get_id, handle_save, \
-    get_email, get_is_top
+    get_email, get_is_top, edit_list_data
 
 news_service = NewsService()
 user_service = UserService()
@@ -95,7 +95,7 @@ def manage_editor(user):
     elif input_val == "exit":
         exit_sys()
     else:
-        handle_error(Message.common_msg["error"], manage_admin, user)
+        handle_error(Message.common_msg["error"], manage_editor, user)
 
 
 def manage_news(user):
@@ -130,7 +130,11 @@ def approval_news(user, page=1):
     page = page
     results = news_service.get_padding_news(page)
     pages = news_service.count_padding_pages()
-    display_judge(page, results, pages, news_service.approval_news, approval_news, manage_news, user)
+    display_judge(
+        page, results, pages, news_service.approval_news, approval_news,
+        manage_news, user, rocket_search_service=news_service.get_news_detail,
+        rocket_cache_service=news_service.cache_news
+    )
 
 
 def delete_news(user, page=1):
@@ -143,7 +147,8 @@ def delete_news(user, page=1):
     page = page
     results = news_service.get_all_news(page)
     pages = news_service.count_all_pages()
-    display_judge(page, results, pages, news_service.delete_news, delete_news, manage_news, user)
+    display_judge(page, results, pages, news_service.delete_news, delete_news,
+                  manage_news, user, rocket_delete_service=news_service.delete_news_redis)
 
 
 def manage_users(user):
@@ -206,25 +211,8 @@ def edit_user(user, page=1):
     page = page
     users = user_service.get_all_users(page)
     pages = user_service.count_all_pages()
-    list_results(page, users, pages)
-    input_val = input(Message.manage_users["prompt"])
-
-    if is_number(input_val):
-        index = is_number(input_val)
-        if len(users) >= index >= 1:
-            cls()
-            edit_user_input(user, users, index, page)
-        else:
-            handle_error(Message.common_msg["id_error"], edit_user, user, page)
-    elif input_val == "back":
-        cls()
-        manage_users(user)
-    elif input_val == "prev":
-        page = prev_page(page, edit_user, user)
-    elif input_val == "next":
-        page = next_page(page, pages, edit_user, user)
-    else:
-        handle_error(Message.common_msg["error"], edit_user, user, page)
+    edit_list_data(user, users, page, pages, Message.manage_users["prompt"],
+                   Message.common_msg["id_error"], edit_user_input, edit_user, manage_users)
 
 
 def edit_user_input(user, users, index, page):
@@ -255,7 +243,7 @@ def edit_user_input(user, users, index, page):
     for i in role_info:
         print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
 
-    new_role_id = get_id(role_info)
+    new_role_id = get_id(role_info, Message.common_msg["role_error"], Message.common_msg["role_id"])
     handle_save(user_service.edit_user, new_username, new_pwd, new_email, new_role_id, user_id)
 
     time_sleep(3)
@@ -290,7 +278,8 @@ def edit_news(user):
         cls()
         insert_news(user)
     elif input_val == "2":
-        pass
+        cls()
+        edit_news_editor(user)
     elif input_val == "back":
         log_out()
     elif input_val == "exit":
@@ -303,7 +292,7 @@ def insert_news(user):
     """
     插入新闻，新闻编辑可见
     :param user: 编辑身份信息
-    :return:
+    :return: none
     """
     type_results = type_service.get_all_type()
     news_title = input(Message.edit_news["title"])
@@ -322,8 +311,52 @@ def insert_news(user):
     edit_news(user)
 
 
-# def edit_news():
-#     pass
+def edit_news_editor(user, page=1):
+    """
+    新闻编辑编辑新闻
+    :param user: 新闻编辑身份信息
+    :param page: 当前页码
+    :return: none
+    """
+    page = page
+    results = news_service.get_all_news(page)
+    pages = news_service.count_all_pages()
+    edit_list_data(user, results, page, pages, Message.edit_news["news_id"],
+                   Message.edit_news["news_id_error"], edit_news_editor_input,
+                   edit_news_editor, edit_news)
+
+
+def edit_news_editor_input(user, newses, index, page):
+    """
+    新闻编辑编辑新闻输入页面
+    :param user: 新闻编辑身份信息
+    :param newses: 全部新闻查询结果集
+    :param index: 用户输入编号
+    :param page: 当前页码
+    :return:
+    """
+    news_id = newses[index - 1][0]
+    news_info = news_service.get_news_for_edit(news_id)
+    type_info = type_service.get_all_type()
+
+    print(Message.edit_news["old_news_title"] % news_info[0][0])
+    new_news_title = input(Message.edit_news["new_news_title"])
+    check_null(new_news_title, Message.edit_news["title_error"], user, newses, index, page,
+               callback=edit_news_editor_input)
+
+    for i in type_info:
+        print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
+
+    new_type_id = get_id(type_info, Message.edit_news["type_id_error"], Message.edit_news["type_id"])
+    new_is_top = get_is_top()
+    # TODO 新闻内容
+    content_id = 1
+    handle_save(news_service.edit_news, new_news_title, new_type_id, content_id, new_is_top, news_id)
+
+    time_sleep(3)
+    cls()
+    print(Message.common_msg["success"])
+    edit_news_editor(user, page)
 
 
 if __name__ == "__main__":

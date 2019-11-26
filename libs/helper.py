@@ -226,9 +226,42 @@ def list_results(page, results, pages):
     print(Message.common_msg["leave"])
 
 
-def handle_input(input_val, results, service, callback, user, page):
+def rocket(data_id, search_service, cache_service):
+    """
+    让数据缓存至 redis 数据库
+    :param cache_service: 缓存数据的 service
+    :param data_id: 数据的 id 值
+    :param search_service: 获取数据的 service
+    :return: none
+    """
+    result = search_service(data_id)[0]
+    title = result[0]
+    username = result[1]
+    type_name = result[2]
+    # 临时
+    content = result[3]
+    is_top = result[4]
+    create_time = str(result[5])
+    cache_service(data_id, title, username, type_name, content, is_top, create_time)
+
+
+def slow(data_id, delete_service):
+    """
+    从缓存中删除数据
+    :param data_id: 要删除缓存的 key 值
+    :param delete_service: 删除缓存数据的 service
+    :return: none
+    """
+    delete_service(data_id)
+
+
+def handle_input(input_val, results, service, callback, user,
+                 page, rocket_search_service, rocket_cache_service, rocket_delete_service):
     """
     处理输入分页编号的后续数据库操作
+    :param rocket_delete_service: 从缓存中删除数据的 service
+    :param rocket_cache_service: 将数据缓存至 redis 的 service
+    :param rocket_search_service: 查询需要缓存到 redis 中数据的 service
     :param input_val: 输入的编号
     :param results: 查询结果集
     :param service: service 处理函数
@@ -241,6 +274,10 @@ def handle_input(input_val, results, service, callback, user, page):
     if len(results) >= index >= 1:
         data_id = results[index - 1][0]
         service(data_id)
+        if rocket_search_service:
+            rocket(data_id, rocket_search_service, rocket_cache_service)
+        if rocket_delete_service:
+            slow(data_id, rocket_delete_service)
         clear_screen()
         print(Message.common_msg["success"])
         callback(user, page)
@@ -248,10 +285,15 @@ def handle_input(input_val, results, service, callback, user, page):
         handle_error(Message.common_msg["id_error"], callback, user, page)
 
 
-def display_judge(page, results, pages, service, callback, up_callback, user):
+def display_judge(page, results, pages, service, callback, up_callback, user,
+                  rocket_search_service=None, rocket_cache_service=None,
+                  rocket_delete_service=None):
     """
     显示结果集并依据输入执行对应的数据库操作
     考虑到对于分页展示并需要通过编号操作的函数重复代码较多，所以将重复的部分再次抽离封装
+    :param rocket_delete_service: 从缓存中删除数据的 service
+    :param rocket_cache_service: 将数据缓存至 redis 的 service
+    :param rocket_search_service: 查询需要缓存到 redis 中数据的 service
     :param page: 当前页码
     :param results: 查询结果集
     :param pages: 总页数
@@ -265,7 +307,8 @@ def display_judge(page, results, pages, service, callback, up_callback, user):
     input_val = input(Message.manage_news_msg["prompt"])
 
     if is_number(input_val):
-        handle_input(input_val, results, service, callback, user, page)
+        handle_input(input_val, results, service, callback, user, page,
+                     rocket_search_service, rocket_cache_service, rocket_delete_service)
     elif input_val == "back":
         clear_screen()
         up_callback(user)
@@ -361,13 +404,54 @@ def handle_save(service, *args):
 
 
 def get_is_top():
+    """
+    该函数专门用以处理 is_top 的输入值
+    :return: is_top 的正确值
+    """
     input_val = input(Message.edit_news["is_top"])
-    is_top_range = [i for i in range(0, 11)]
+    is_top_range = [str(i) for i in range(0, 11)]
     if not input_val:
         input_val = input_cycle(input_val, Message.edit_news["is_top_error"], Message.edit_news["is_top"])
-    while (is_number(input_val) == False and is_number(input_val) != 0) or is_number(input_val) not in is_top_range:
+    while input_val not in is_top_range:
         print(Message.edit_news["is_top_error"])
         input_val = input_cycle(input_val, Message.edit_news["is_top_error"], Message.edit_news["is_top"])
-        if (is_number(input_val) != False or is_number(input_val) == 0) and is_number(input_val) in is_top_range:
+        if input_val in is_top_range:
             break
     return is_number(input_val)
+
+
+def edit_list_data(user, results, page, pages, prompt, error_msg,
+                   input_callback, callback, upper_callback):
+    """
+    专门处理编辑用户或者编辑新闻
+    :param user: 当前登录用户的身份信息
+    :param results: 查询结果集
+    :param page: 当前页码
+    :param pages: 总页数
+    :param prompt: 提示信息
+    :param error_msg: 错误信息
+    :param input_callback: 具体编辑输入函数
+    :param callback: 回调，出现错误时重新执行当前函数
+    :param upper_callback: 上一级函数
+    :return: none
+    """
+    page = page
+    list_results(page, results, pages)
+    input_val = input(prompt)
+
+    if is_number(input_val):
+        index = is_number(input_val)
+        if len(results) >= index >= 1:
+            clear_screen()
+            input_callback(user, results, index, page)
+        else:
+            handle_error(error_msg, callback, user, page)
+    elif input_val == "back":
+        clear_screen()
+        upper_callback(user)
+    elif input_val == "prev":
+        page = prev_page(page, callback, user)
+    elif input_val == "next":
+        page = next_page(page, pages, callback, user)
+    else:
+        handle_error(Message.common_msg["error"], callback, user, page)

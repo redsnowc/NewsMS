@@ -35,6 +35,27 @@ class NewsDao:
             INSERT INTO t_news (title, editor_id, type_id, content_id, is_top, create_time, update_time, state)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
+        self.get_news_detail_sql = """
+            SELECT n.title, u.username, t.type, n.content_id, n.is_top, n.create_time
+            FROM t_news n
+            JOIN t_type t 
+            ON n.type_id = t.id
+            JOIN t_user u 
+            ON n.editor_id = u.id
+            WHERE n.id = %s
+        """
+        self.get_news_for_edit_sql = """
+            SELECT n.title, t.type, n.is_top
+            FROM t_news n
+            JOIN t_type t 
+            ON n.type_id = t.id 
+            WHERE n.id = %s 
+        """
+        self.edit_news_sql = """
+            UPDATE t_news
+            SET title = %s, type_id = %s, content_id = %s, is_top = %s, update_time = %s, state = %s
+            WHERE id = %s
+        """
 
     # 获取所有待审批新闻
     def get_pending_news(self, page):
@@ -72,6 +93,21 @@ class NewsDao:
     def insert_news(self, title, editor_id, type_id, content_id, is_top):
         now = datetime.now()
         execute_other_sql(self.insert_news_sql, title, editor_id, type_id, content_id, is_top, now, now, "待审批")
+
+    # 查找新闻详细记录
+    def get_news_detail(self, news_id):
+        result = execute_select_sql(self.get_news_detail_sql, news_id)
+        return result
+
+    # 根据需要修改的新闻 id 查询新闻纪录
+    def get_news_for_edit(self, news_id):
+        result = execute_select_sql(self.get_news_for_edit_sql, news_id)
+        return result
+
+    # 修改新闻
+    def edit_news(self, title, type_id, content_id, is_top, news_id):
+        now = datetime.now()
+        execute_other_sql(self.edit_news_sql, title, type_id, content_id, is_top, now, "待审批", news_id)
 
 
 if __name__ == "__main__":

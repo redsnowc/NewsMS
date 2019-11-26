@@ -127,5 +127,13 @@ back. 返回上一层
         "title_error": Fore.RED + "\n!WARING: 新闻标题不能为空！",
         "type_id_error": Fore.RED + "\n!WARING: 新闻类型输入有误！",
         "is_top_error": Fore.RED + "\n!WARING: 置顶即便输入有误！",
+        "news_id": Style.RESET_ALL + "\n请输入新闻编号: ",
+        "news_id_error": Fore.RED + "\n!WARING: 新闻编号输入有误！",
+        "old_news_title": Style.RESET_ALL + "\n原新闻标题: %s",
+        "old_news_type": Style.RESET_ALL + "\n原新闻类型: %s",
+        "old_news_top": Style.RESET_ALL + "\n原新闻置顶级别: %s",
+        "new_news_title": Style.RESET_ALL + "\n新新闻标题: ",
+        "new_news_type": Style.RESET_ALL + "\n新新闻类型: ",
+        "new_news_top": Style.RESET_ALL + "\n新新闻置顶级别: ",
     }
 

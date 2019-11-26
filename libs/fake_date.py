@@ -17,7 +17,7 @@ def fake_news():
         cursor = con.cursor()
         for i in range(0, 20):
             date = f_cn.date()
-            cursor.execute(sql, ("新闻标题" + str(i + 1), 2, 1, i + 1, 1, date, date, "待审批"))
+            cursor.execute(sql, ("新闻标题" + str(i + 1), 2, 1, i + 1, 0, date, date, "待审批"))
         con.commit()
     except Exception as e:
         if "con" in dir():
