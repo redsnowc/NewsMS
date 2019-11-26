@@ -144,18 +144,6 @@ def delete_news(user, page=1):
     display_judge(page, results, pages, news_service.delete_news, delete_news, manage_news, user)
 
 
-def edit_news(user):
-    """
-    编辑新闻，临时，仅编辑身份可见
-    :param user: 编辑身份信息
-    :return: none
-    """
-    print(Fore.RED + "新闻模块开发中...\n")
-    time_sleep(3)
-    cls()
-    start()
-
-
 def manage_users(user):
     """
     管理用户，仅管理员可见
@@ -225,16 +213,16 @@ def edit_user(user, page=1):
             cls()
             edit_user_input(user, users, index, page)
         else:
-            handle_error(Message.common_msg["id_error"], edit_news, user, page)
+            handle_error(Message.common_msg["id_error"], edit_user, user, page)
     elif input_val == "back":
         cls()
         manage_users(user)
     elif input_val == "prev":
-        page = prev_page(page, edit_news, user)
+        page = prev_page(page, edit_user, user)
     elif input_val == "next":
-        page = next_page(page, pages, edit_news, user)
+        page = next_page(page, pages, edit_user, user)
     else:
-        handle_error(Message.common_msg["error"], edit_news, user, page)
+        handle_error(Message.common_msg["error"], edit_user, user, page)
 
 
 def edit_user_input(user, users, index, page):
@@ -285,6 +273,35 @@ def delete_user(user, page=1):
     results = user_service.get_all_users(page)
     pages = user_service.count_all_pages()
     display_judge(page, results, pages, user_service.delete_user, delete_user, manage_users, user)
+
+
+def edit_news(user):
+    """
+    编辑新闻，仅编辑身份可见
+    :param user: 编辑身份信息
+    :return: none
+    """
+    print(Message.edit_news["option"])
+    print(Message.manage_msg["leave"])
+    input_val = input(Message.common_msg["prompt"])
+    if input_val == "1":
+        pass
+    elif input_val == "2":
+        pass
+    elif input_val == "back":
+        log_out()
+    elif input_val == "exit":
+        exit_sys()
+    else:
+        handle_error(Message.common_msg["error"], edit_news, user)
+
+
+def new_news():
+    pass
+
+
+# def edit_news():
+#     pass
 
 
 if __name__ == "__main__":

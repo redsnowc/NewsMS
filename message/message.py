@@ -113,3 +113,11 @@ back. 返回上一层
     add_user = {
         "email": Style.RESET_ALL + "\n请输入邮箱: ",
     }
+
+    edit_news = {
+        "option": Fore.GREEN + """
+1. 发表新闻
+
+2. 编辑新闻
+    """
+    }
