@@ -3,13 +3,15 @@ from colorama import Fore
 
 from service.user_service import UserService
 from service.news_service import NewsService
+from service.type_service import TypeService
 from message.message import Message
 from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, \
-    is_number, next_page, prev_page, list_results, display_judge, get_password, get_role_id, handle_save, \
-    get_email
+    is_number, next_page, prev_page, list_results, display_judge, get_password, get_id, handle_save, \
+    get_email, get_is_top
 
 news_service = NewsService()
 user_service = UserService()
+type_service = TypeService()
 
 
 def start():
@@ -185,7 +187,7 @@ def add_user(user):
     print(email)
     for i in role_info:
         print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
-    role_id = get_role_id(role_info)
+    role_id = get_id(role_info, Message.common_msg["role_error"], Message.common_msg["role_id"])
     handle_save(user_service.add_user, username, pwd, email, role_id)
 
     time_sleep(3)
@@ -253,7 +255,7 @@ def edit_user_input(user, users, index, page):
     for i in role_info:
         print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
 
-    new_role_id = get_role_id(role_info)
+    new_role_id = get_id(role_info)
     handle_save(user_service.edit_user, new_username, new_pwd, new_email, new_role_id, user_id)
 
     time_sleep(3)
@@ -285,7 +287,8 @@ def edit_news(user):
     print(Message.manage_msg["leave"])
     input_val = input(Message.common_msg["prompt"])
     if input_val == "1":
-        pass
+        cls()
+        insert_news(user)
     elif input_val == "2":
         pass
     elif input_val == "back":
@@ -296,8 +299,27 @@ def edit_news(user):
         handle_error(Message.common_msg["error"], edit_news, user)
 
 
-def new_news():
-    pass
+def insert_news(user):
+    """
+    插入新闻，新闻编辑可见
+    :param user: 编辑身份信息
+    :return:
+    """
+    type_results = type_service.get_all_type()
+    news_title = input(Message.edit_news["title"])
+    check_null(news_title, Message.edit_news["title_error"], user, callback=insert_news)
+    for i in type_results:
+        print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
+    type_id = get_id(type_results, Message.edit_news["type_id_error"], Message.edit_news["type_id"])
+    # 临时
+    content_id = 1
+    is_top = get_is_top()
+    handle_save(news_service.insert_news, news_title, user["user_id"], type_id, content_id, is_top)
+
+    time_sleep(3)
+    cls()
+    print(Message.common_msg["success"])
+    edit_news(user)
 
 
 # def edit_news():

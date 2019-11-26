@@ -1,6 +1,6 @@
 from faker import Faker
 
-from model.connection_pool import pool
+from model.connection_pool import mysql_pool
 from service.user_service import UserService
 
 f_cn = Faker("zh-cn")
@@ -12,7 +12,7 @@ sql = """
 
 def fake_news():
     try:
-        con = pool.get_connection()
+        con = mysql_pool.get_connection()
         con.start_transaction()
         cursor = con.cursor()
         for i in range(0, 20):
@@ -31,18 +31,18 @@ def fake_news():
 def fake_other():
     s = UserService()
     s.add_user("admin", "1234", "admin@admin.com", 1)
-    s.add_user("editor", "1234", "editor@editor.com", 1)
+    s.add_user("editor", "1234", "editor@editor.com", 2)
     try:
-        con = pool.get_connection()
+        con = mysql_pool.get_connection()
         con.start_transaction()
         cursor = con.cursor()
-        cursor.execute("INSERT INTO `t_role` VALUES ('2', '新闻编辑');")
         cursor.execute("INSERT INTO `t_role` VALUES ('1', '管理员');")
-        cursor.execute("INSERT INTO `t_type` VALUES ('2', '体育');")
-        cursor.execute("INSERT INTO `t_type` VALUES ('5', '历史');")
-        cursor.execute("INSERT INTO `t_type` VALUES ('4', '娱乐');")
-        cursor.execute("INSERT INTO `t_type` VALUES ('3', '科技');")
+        cursor.execute("INSERT INTO `t_role` VALUES ('2', '新闻编辑');")
         cursor.execute("INSERT INTO `t_type` VALUES ('1', '要闻');")
+        cursor.execute("INSERT INTO `t_type` VALUES ('2', '体育');")
+        cursor.execute("INSERT INTO `t_type` VALUES ('3', '科技');")
+        cursor.execute("INSERT INTO `t_type` VALUES ('4', '娱乐');")
+        cursor.execute("INSERT INTO `t_type` VALUES ('5', '历史');")
         con.commit()
     except Exception as e:
         if "con" in dir():
@@ -54,7 +54,7 @@ def fake_other():
 
 
 def create_table():
-    con = pool.get_connection()
+    con = mysql_pool.get_connection()
 
     cursor = con.cursor()
     cursor.execute("DROP TABLE IF EXISTS `t_news`")

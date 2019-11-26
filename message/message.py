@@ -119,5 +119,13 @@ back. 返回上一层
 1. 发表新闻
 
 2. 编辑新闻
-    """
+    """,
+        "title": Style.RESET_ALL + "\n新闻标题: ",
+        "type_id": Style.RESET_ALL + "\n新闻类型编号: ",
+        "content_id": Style.RESET_ALL + "\n新闻内容编号: ",
+        "is_top": Style.RESET_ALL + "\n新闻置顶级别(0-10): ",
+        "title_error": Fore.RED + "\n!WARING: 新闻标题不能为空！",
+        "type_id_error": Fore.RED + "\n!WARING: 新闻类型输入有误！",
+        "is_top_error": Fore.RED + "\n!WARING: 置顶即便输入有误！",
     }
+

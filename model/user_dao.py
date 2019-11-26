@@ -8,7 +8,7 @@ from libs.helper import execute_select_sql, execute_other_sql
 class UserDao:
     def __init__(self):
         self.check_user_sql = """
-            SELECT username, role_id 
+            SELECT id, username, role_id 
             FROM t_user 
             WHERE username=%s 
             AND AES_DECRYPT(UNHEX(password), %s) = %s
@@ -61,7 +61,7 @@ class UserDao:
     def check_user(self, username, password):
         user_info = execute_select_sql(self.check_user_sql, username, Config.secret_key, password)
         if user_info:
-            return {"username": user_info[0][0], "role": user_info[0][1]}
+            return {"user_id": user_info[0][0], "username": user_info[0][1], "role": user_info[0][2]}
         return False
 
     # 获取所有用户

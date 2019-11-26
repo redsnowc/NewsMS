@@ -6,7 +6,7 @@ import re
 from getpass import getpass
 from colorama import Fore
 
-from model.connection_pool import pool
+from model.connection_pool import mysql_pool
 from message.message import Message
 
 
@@ -18,7 +18,7 @@ def execute_select_sql(sql, *args):
     :return: 查询结果
     """
     try:
-        connection = pool.get_connection()
+        connection = mysql_pool.get_connection()
         cursor = connection.cursor()
         cursor.execute(sql, [i for i in args])
         return cursor.fetchall()
@@ -37,7 +37,7 @@ def execute_other_sql(sql, *args):
     :return: none
     """
     try:
-        connection = pool.get_connection()
+        connection = mysql_pool.get_connection()
         connection.start_transaction()
         cursor = connection.cursor()
         cursor.execute(sql, [i for i in args])
@@ -320,22 +320,24 @@ def get_email(prompt):
     return email
 
 
-def get_role_id(role_info):
+def get_id(results, error_mag, prompt_msg):
     """
-    获取角色 id，判断用户输入的角色 id 是否在正确的范围
-    :param role_info: 数据库中的角色信息
-    :return: 正确的角色 id
+    获取 id，判断用户输入的 id 是否在正确的范围
+    :param results: 查询结果集
+    :param error_mag: 错误提示信息
+    :param prompt_msg: 提示信息
+    :return: 正确的 id
     """
-    role_id = input(Message.common_msg["role_id"])
-    role_id_range = [i[0] for i in role_info]
-    if not role_id:
-        role_id = input_cycle(role_id, Message.common_msg["role_error"], Message.common_msg["role_id"])
-    while is_number(role_id) not in role_id_range:
-        print(Message.common_msg["role_error"])
-        role_id = input_cycle(role_id, Message.common_msg["role_error"], Message.common_msg["role_id"])
-        if is_number(role_id) in role_id_range:
+    input_val = input(prompt_msg)
+    id_range = [i[0] for i in results]
+    if not input_val:
+        input_val = input_cycle(input_val, error_mag, prompt_msg)
+    while is_number(input_val) not in id_range:
+        print(error_mag)
+        input_val = input_cycle(input_val, error_mag, prompt_msg)
+        if is_number(input_val) in id_range:
             break
-    return is_number(role_id)
+    return is_number(input_val)
 
 
 def handle_save(service, *args):
@@ -356,3 +358,16 @@ def handle_save(service, *args):
             break
         else:
             print(Message.common_msg["error"])
+
+
+def get_is_top():
+    input_val = input(Message.edit_news["is_top"])
+    is_top_range = [i for i in range(0, 11)]
+    if not input_val:
+        input_val = input_cycle(input_val, Message.edit_news["is_top_error"], Message.edit_news["is_top"])
+    while (is_number(input_val) == False and is_number(input_val) != 0) or is_number(input_val) not in is_top_range:
+        print(Message.edit_news["is_top_error"])
+        input_val = input_cycle(input_val, Message.edit_news["is_top_error"], Message.edit_news["is_top"])
+        if (is_number(input_val) != False or is_number(input_val) == 0) and is_number(input_val) in is_top_range:
+            break
+    return is_number(input_val)

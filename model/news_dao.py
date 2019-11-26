@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from settings.settings import Config
 from libs.helper import execute_select_sql, execute_other_sql
 
@@ -28,6 +30,10 @@ class NewsDao:
         self.delete_news_sql = """
             DELETE FROM t_news
             WHERE id = %s
+        """
+        self.insert_news_sql = """
+            INSERT INTO t_news (title, editor_id, type_id, content_id, is_top, create_time, update_time, state)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
 
     # 获取所有待审批新闻
@@ -61,6 +67,11 @@ class NewsDao:
     # 删除新闻
     def delete_news(self, news_id):
         execute_other_sql(self.delete_news_sql, news_id)
+
+    # 插入新闻
+    def insert_news(self, title, editor_id, type_id, content_id, is_top):
+        now = datetime.now()
+        execute_other_sql(self.insert_news_sql, title, editor_id, type_id, content_id, is_top, now, now, "待审批")
 
 
 if __name__ == "__main__":
