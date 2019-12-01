@@ -22,6 +22,12 @@ class Config:
         "db": 0,
         "max_connections": 20,
     }
+    mongo_config = {
+        "host": "localhost",
+        "port": 27017,
+        "username": os.getenv("mongo_username", "admin"),
+        "password": os.getenv("mongo_pwd", "1234"),
+    }
     # 秘钥
     secret_key = os.getenv("secret_key", "abc")
     # 每页显示数量

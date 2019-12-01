@@ -1,5 +1,6 @@
 from model.news_dao import NewsDao
 from model.redis_news_dao import RedisNewsDao
+from model.mongo_news_dao import MongoNewsDao
 
 
 class NewsService:
@@ -7,6 +8,7 @@ class NewsService:
     def __init__(self):
         self.news_dao = NewsDao()
         self.redis_news_dao = RedisNewsDao()
+        self.mongo_news_dao = MongoNewsDao()
 
     # 获取待审核新闻
     def get_padding_news(self, page):
@@ -37,7 +39,9 @@ class NewsService:
         self.news_dao.delete_news(news_id)
 
     # 添加新闻
-    def insert_news(self, title, editor_id, type_id, content_id, is_top):
+    def insert_news(self, title, editor_id, type_id, content, is_top):
+        document = self.mongo_news_dao.insert(title, content)
+        content_id = str(document.inserted_id)
         self.news_dao.insert_news(title, editor_id, type_id, content_id, is_top)
 
     # 查找新闻详细记录

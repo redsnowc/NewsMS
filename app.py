@@ -7,7 +7,7 @@ from service.type_service import TypeService
 from message.message import Message
 from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, \
     is_number, next_page, prev_page, list_results, display_judge, get_password, get_id, handle_save, \
-    get_email, get_is_top, edit_list_data
+    get_email, get_is_top, edit_list_data, get_file_path
 
 news_service = NewsService()
 user_service = UserService()
@@ -300,10 +300,11 @@ def insert_news(user):
     for i in type_results:
         print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
     type_id = get_id(type_results, Message.edit_news["type_id_error"], Message.edit_news["type_id"])
-    # 临时
-    content_id = 1
+    file_path = get_file_path()
+    with open(file_path, "r") as f:
+        content = f.read()
     is_top = get_is_top()
-    handle_save(news_service.insert_news, news_title, user["user_id"], type_id, content_id, is_top)
+    handle_save(news_service.insert_news, news_title, user["user_id"], type_id, content, is_top)
 
     time_sleep(3)
     cls()

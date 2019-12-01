@@ -135,5 +135,7 @@ back. 返回上一层
         "new_news_title": Style.RESET_ALL + "\n新新闻标题: ",
         "new_news_type": Style.RESET_ALL + "\n新新闻类型: ",
         "new_news_top": Style.RESET_ALL + "\n新新闻置顶级别: ",
+        "file_path": Style.RESET_ALL + "\n新闻文档路径: ",
+        "file_path_error": Fore.RED + "\n!WARING: 新闻文档路径输入有误！",
     }
 

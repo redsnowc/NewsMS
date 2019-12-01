@@ -455,3 +455,20 @@ def edit_list_data(user, results, page, pages, prompt, error_msg,
         page = next_page(page, pages, callback, user)
     else:
         handle_error(Message.common_msg["error"], callback, user, page)
+
+
+def get_file_path():
+    input_val = input(Message.edit_news["file_path"])
+    if not input_val:
+        input_val = input_cycle(input_val, Message.edit_news["file_path_error"], Message.edit_news["file_path"])
+    while input_val.rsplit(".", 1)[1] != "txt" or not os.path.isfile(input_val):
+        print(Message.edit_news["file_path_error"])
+        input_val = input_cycle(input_val, Message.edit_news["file_path_error"], Message.edit_news["file_path"])
+        if input_val.rsplit('.', 1)[1] == "txt" and os.path.isfile(input_val):
+            break
+    return input_val
+
+
+if __name__ == "__main__":
+    a = get_file_path()
+    print(a)
