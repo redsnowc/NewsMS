@@ -7,7 +7,7 @@ from service.type_service import TypeService
 from message.message import Message
 from libs.helper import clear_screen as cls, handle_error, check_null, input_cycle, exit_sys, log_out, time_sleep, \
     is_number, next_page, prev_page, list_results, display_judge, get_password, get_id, handle_save, \
-    get_email, get_is_top, edit_list_data, get_file_path
+    get_email, get_is_top, edit_list_data, get_file_path, get_file_content
 
 news_service = NewsService()
 user_service = UserService()
@@ -300,9 +300,7 @@ def insert_news(user):
     for i in type_results:
         print(Fore.BLUE + "\n%s. %s" % (i[0], i[1]))
     type_id = get_id(type_results, Message.edit_news["type_id_error"], Message.edit_news["type_id"])
-    file_path = get_file_path()
-    with open(file_path, "r") as f:
-        content = f.read()
+    content = get_file_content(get_file_path())
     is_top = get_is_top()
     handle_save(news_service.insert_news, news_title, user["user_id"], type_id, content, is_top)
 
@@ -350,9 +348,8 @@ def edit_news_editor_input(user, newses, index, page):
 
     new_type_id = get_id(type_info, Message.edit_news["type_id_error"], Message.edit_news["type_id"])
     new_is_top = get_is_top()
-    # TODO 新闻内容
-    content_id = 1
-    handle_save(news_service.edit_news, new_news_title, new_type_id, content_id, new_is_top, news_id)
+    content = get_file_content(get_file_path())
+    handle_save(news_service.edit_news, new_news_title, new_type_id, content, new_is_top, news_id)
 
     time_sleep(3)
     cls()

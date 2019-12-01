@@ -56,6 +56,11 @@ class NewsDao:
             SET title = %s, type_id = %s, content_id = %s, is_top = %s, update_time = %s, state = %s
             WHERE id = %s
         """
+        self.get_news_mongo_id = """
+            SELECT content_id
+            FROM t_news
+            WHERE id = %s
+        """
 
     # 获取所有待审批新闻
     def get_pending_news(self, page):
@@ -109,6 +114,13 @@ class NewsDao:
         now = datetime.now()
         execute_other_sql(self.edit_news_sql, title, type_id, content_id, is_top, now, "待审批", news_id)
 
+    # 搜索新闻内容 id 值
+    def search_mongo_id(self, news_id):
+        mongo_id = execute_select_sql(self.get_news_mongo_id, news_id)[0][0]
+        return mongo_id
+
 
 if __name__ == "__main__":
     a = NewsDao()
+    r = a.search_mongo_id(24)
+    print(r)

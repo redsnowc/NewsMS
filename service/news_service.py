@@ -36,6 +36,8 @@ class NewsService:
 
     # 删除新闻
     def delete_news(self, news_id):
+        mongo_id = self.news_dao.search_mongo_id(news_id)
+        self.mongo_news_dao.delete_by_id(mongo_id)
         self.news_dao.delete_news(news_id)
 
     # 添加新闻
@@ -50,7 +52,8 @@ class NewsService:
         return result
 
     # 将新闻缓存至 redis
-    def cache_news(self, news_id, title, username, type_name, content, is_top, create_time):
+    def cache_news(self, news_id, title, username, type_name, mongo_id, is_top, create_time):
+        content = self.mongo_news_dao.search_content_by_id(mongo_id)
         self.redis_news_dao.insert_news(news_id, title, username, type_name, content,
                                         is_top, create_time)
 
@@ -64,8 +67,10 @@ class NewsService:
         return result
 
     # 修改新闻
-    def edit_news(self, title, type_id, content_id, is_top, news_id):
-        self.news_dao.edit_news(title, type_id, content_id, is_top, news_id)
+    def edit_news(self, title, type_id, content, is_top, news_id):
+        mongo_id = self.news_dao.search_mongo_id(news_id)
+        self.mongo_news_dao.update(mongo_id, title, content)
+        self.news_dao.edit_news(title, type_id, mongo_id, is_top, news_id)
         # 修改新闻后，需要将新闻从缓存中删除
         self.delete_news_redis(news_id)
 

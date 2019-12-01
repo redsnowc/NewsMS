@@ -238,11 +238,10 @@ def rocket(data_id, search_service, cache_service):
     title = result[0]
     username = result[1]
     type_name = result[2]
-    # 临时
-    content = result[3]
+    mongo_id = result[3]
     is_top = result[4]
     create_time = str(result[5])
-    cache_service(data_id, title, username, type_name, content, is_top, create_time)
+    cache_service(data_id, title, username, type_name, mongo_id, is_top, create_time)
 
 
 def slow(data_id, delete_service):
@@ -458,6 +457,10 @@ def edit_list_data(user, results, page, pages, prompt, error_msg,
 
 
 def get_file_path():
+    """
+    获取正确的文件路径，要求文件必须是 txt 格式的
+    :return: 正确的文件路径
+    """
     input_val = input(Message.edit_news["file_path"])
     if not input_val:
         input_val = input_cycle(input_val, Message.edit_news["file_path_error"], Message.edit_news["file_path"])
@@ -467,6 +470,16 @@ def get_file_path():
         if input_val.rsplit('.', 1)[1] == "txt" and os.path.isfile(input_val):
             break
     return input_val
+
+
+def get_file_content(file_path):
+    """
+    通过文件路径，读取文件内容
+    :param file_path: 文件路径
+    :return: 文件的内容
+    """
+    with open(file_path, "r") as f:
+        return f.read()
 
 
 if __name__ == "__main__":
